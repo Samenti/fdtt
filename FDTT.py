@@ -27,15 +27,17 @@ declension_tables = [(
 	'suoloille', 'suoloilla', 'suoloista', 'suoloilta', 'suoloina', 'suoloitta', 'suoloiksi', 'suoloin', 'suoloineen', 'salt')]
 
 root = tk.Tk()
+root.title("Finnish Declension Tables Tester")
 title_var = tk.StringVar()
 word_var = tk.StringVar()
 
 frm_title = tk.Frame(root, bg="steel blue")
 frm_title.pack()
-frm_table = tk.Frame(root, pady=50, bg="light steel blue")
-frm_table.pack()
 lbl_title = tk.Label(frm_title, font=("Helvetica", 32), textvariable=title_var, bg="steel blue")
 lbl_title.pack()
+
+frm_table = tk.Frame(root, pady=50, bg="light steel blue")
+frm_table.pack()
 
 lbl_table_null = tk.Label(frm_table, text="", font=("Helvetica", 14), background="light steel blue")
 lbl_table_null.grid(row=0, column=0)
@@ -51,36 +53,61 @@ labels = [
 "translative", "instructive", "comitative"
 ]
 
+
+# to maintain correct tab-order (going from top to bottom then left to right)
+# I made 3 separate loops to create the labels and the entries;
+# previous solution commented out further down
 row_counter = 1
 for label in labels:
-	table_dic[label] = (tk.Label(frm_table), tk.Entry(frm_table), tk.Entry(frm_table))
-
+	table_dic[label] = []
+	table_dic[label].append(tk.Label(frm_table))
 	table_dic[label][0].config(text=label, font=("Helvetica", 14), background="light steel blue")
 	table_dic[label][0].grid(row=row_counter, column=0, sticky=tk.W, pady=5, padx=50)
+	row_counter += 1
 
+row_counter = 1
+for label in labels:
+	table_dic[label].append(tk.Entry(frm_table))
 	table_dic[label][1].config(
 		font=("Helvetica", 14),
 		insertbackground="darkgray", insertontime=500, insertofftime=500,
 		readonlybackground="light steel blue"
 	)
 	table_dic[label][1].grid(row=row_counter, column=1, pady=5)
+	row_counter += 1
 
+row_counter = 1
+for label in labels:
+	table_dic[label].append(tk.Entry(frm_table))
 	table_dic[label][2].config(
 		font=("Helvetica", 14),
 		insertbackground="darkgray", insertontime=500, insertofftime=500,
 		readonlybackground="light steel blue"
 		)
 	table_dic[label][2].grid(row=row_counter, column=2, pady=5, padx=50)
-
 	row_counter += 1
 
-table_dic["nominative"][1].config(
-	textvariable=word_var, state="readonly", fg="green4"
-	)
-table_dic["instructive"][1].insert(0, "–")
-table_dic["comitative"][1].insert(0, "–")
-table_dic["instructive"][1].config(state="readonly", justify=tk.CENTER)
-table_dic["comitative"][1].config(state="readonly", justify=tk.CENTER)
+# for label in labels:
+# 	table_dic[label] = (tk.Label(frm_table), tk.Entry(frm_table), tk.Entry(frm_table))
+
+# 	table_dic[label][0].config(text=label, font=("Helvetica", 14), background="light steel blue")
+# 	table_dic[label][0].grid(row=row_counter, column=0, sticky=tk.W, pady=5, padx=50)
+
+# 	table_dic[label][1].config(
+# 		font=("Helvetica", 14),
+# 		insertbackground="darkgray", insertontime=500, insertofftime=500,
+# 		readonlybackground="light steel blue"
+# 	)
+# 	table_dic[label][1].grid(row=row_counter, column=1, pady=5)
+
+# 	table_dic[label][2].config(
+# 		font=("Helvetica", 14),
+# 		insertbackground="darkgray", insertontime=500, insertofftime=500,
+# 		readonlybackground="light steel blue"
+# 		)
+# 	table_dic[label][2].grid(row=row_counter, column=2, pady=5, padx=50)
+
+# 	row_counter += 1
 
 def init_game():
 	"""
@@ -100,6 +127,9 @@ def init_game():
 	answered[0] = True
 	word_var.set(answers[0])
 	title_var.set(answers[0] + "   –   " + answers[32])
+	table_dic["nominative"][1].config(
+	textvariable=word_var, state="readonly", fg="green4"
+	)
 	if answers[13] == '':
 		table_dic["instructive"][1].insert(0, "–")
 		table_dic["instructive"][1].config(state="readonly", justify=tk.CENTER)
@@ -117,7 +147,8 @@ def return_press(event):
 	"""
 	Event handler for an 'Enter key' press.
 	"""
-	pass
+
+	
 
 def tab_press(event):
 	"""
@@ -138,5 +169,6 @@ def resize_title(window_width):
 init_game()
 root.bind("<Return>", print_stuff)
 root.wait_visibility()
+print frm_table.grid_bbox()[2]
 resize_title(frm_table.grid_bbox()[2])
 root.mainloop()
