@@ -13,17 +13,17 @@ import Tkinter as tk
 import random
 
 declension_tables = [(
-	'äiti', 'äidin', 'äiti', 'äidin', 'äitiä', 'äitiin', 'äidissä',
+	'äiti', 'äidin', ('äiti', 'äidin'), 'äitiä', 'äitiin', 'äidissä',
 	'äidille', 'äidillä', 'äidistä', 'äidiltä', 'äitinä', 'äidittä', 'äidiksi', '', '',
-	'äidit', 'äitien', 'äidit', '', 'äitejä', 'äiteihin', 'äideissä',
+	'äidit', 'äitien', 'äidit', 'äitejä', 'äiteihin', 'äideissä',
 	'äideille', 'äideillä', 'äideistä', 'äideiltä', 'äiteinä', 'äideittä', 'äideiksi', 'äidein', 'äiteineen', 'mother'
-	), ('sokeri', 'sokerin', 'sokeri', 'sokerin', 'sokeria', 'sokeriin', 'sokerissa',
+	), ('sokeri', 'sokerin', ('sokeri', 'sokerin'), 'sokeria', 'sokeriin', 'sokerissa',
 	'sokerille', 'sokerilla', 'sokerista', 'sokerilta', 'sokerina', 'sokeritta', 'sokeriksi', '', '',
-	'sokerit', ('sokerien', 'sokereiden', 'sokereitten'), 'sokerit', '', ('sokereita', 'sokereja'), 'sokereihin', 'sokereissa',
+	'sokerit', ('sokerien', 'sokereiden', 'sokereitten'), 'sokerit', ('sokereita', 'sokereja'), 'sokereihin', 'sokereissa',
 	'sokereille', 'sokereilla', 'sokereista', 'sokereilta', 'sokereina', 'sokereitta', 'sokereiksi', 'sokerein', 'sokereineen', 'sugar'
-	), ('suola', 'suolan', 'suola', 'suolan', 'suolaa', 'suolaan', 'suolassa',
+	), ('suola', 'suolan', ('suola', 'suolan'), 'suolaa', 'suolaan', 'suolassa',
 	'suolalle', 'suolalla', 'suolasta', 'suolalta', 'suolana', 'suolatta', 'suolaksi', '', '',
-	'suolat', ('suolojen', 'suolainrare'), 'suolat', '', 'suoloja', 'suoloihin', 'suoloissa',
+	'suolat', ('suolojen', 'suolainrare'), 'suolat', 'suoloja', 'suoloihin', 'suoloissa',
 	'suoloille', 'suoloilla', 'suoloista', 'suoloilta', 'suoloina', 'suoloitta', 'suoloiksi', 'suoloin', 'suoloineen', 'salt')]
 
 root = tk.Tk()
@@ -126,7 +126,7 @@ def init_game():
 	answered = [False for answer in answers]
 	answered[0] = True
 	word_var.set(answers[0])
-	title_var.set(answers[0] + "   –   " + answers[32])
+	title_var.set(answers[0] + "   –   " + answers[30])
 	table_dic["nominative"][1].config(
 	textvariable=word_var, state="readonly", fg="green4"
 	)
@@ -147,14 +147,6 @@ def return_press(event):
 	"""
 	Event handler for an 'Enter key' press.
 	"""
-
-	
-
-def tab_press(event):
-	"""
-	Event handler for a 'tab key' press.
-	"""
-	pass
 
 def resize_title(window_width):
 	"""
