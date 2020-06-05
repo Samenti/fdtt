@@ -12,11 +12,21 @@ learning Finnish nominal declension tables.
 import Tkinter as tk
 import random
 
-template = ("nominative", "genitive", "accusative", "partitive", "illative", "inessive",
+# make root widget
+root = tk.Tk()
+root.title("Finnish Declension Tables Tester")
+
+# globals and contants
+TEMPLATE = ("nominative", "genitive", "accusative", "partitive", "illative", "inessive",
 "allative", "adessive", "elative", "ablative", "essive", "abessive",
 "translative", "instructive", "comitative", "nominative_pl", "genitive_pl", "accusative_pl", "partitive_pl", "illative_pl", "inessive_pl",
 "allative_pl", "adessive_pl", "elative_pl", "ablative_pl", "essive_pl", "abessive_pl",
 "translative_pl", "instructive_pl", "comitative_pl", "english")
+title_var = tk.StringVar()
+word_var = tk.StringVar()
+word_counter = 10
+words = None
+points = 0
 
 declension_tables = [(
 	'äiti', 'äidin', ('äiti', 'äidin'), 'äitiä', 'äitiin', 'äidissä',
@@ -33,11 +43,7 @@ declension_tables = [(
 	'suoloille', 'suoloilla', 'suoloista', 'suoloilta', 'suoloina', 'suoloitta', 'suoloiksi', 'suoloin', 'suoloineen', 'salt')]
 
 
-root = tk.Tk()
-root.title("Finnish Declension Tables Tester")
-title_var = tk.StringVar()
-word_var = tk.StringVar()
-
+# make frames and labels
 frm_title = tk.Frame(root, bg="steel blue")
 frm_title.pack()
 lbl_title = tk.Label(frm_title, font=("Helvetica", 32), textvariable=title_var, bg="steel blue")
@@ -53,47 +59,13 @@ lbl_table_sg.grid(row=0, column=1)
 lbl_table_pl = tk.Label(frm_table, text="plural", font=("Helvetica", 14), background="light steel blue")
 lbl_table_pl.grid(row=0, column=2)
 
-label_dic = {}
 labels = [
 "nominative", "genitive", "accusative", "partitive", "illative", "inessive",
 "allative", "adessive", "elative", "ablative", "essive", "abessive",
 "translative", "instructive", "comitative"
 ]
 
-
-# to maintain correct tab-order (going from top to bottom then left to right)
-# I made 3 separate loops to create the labels and the entries;
-# previous solution commented out further down
-# row_counter = 1
-# for label in labels:
-# 	table_dic[label] = []
-# 	table_dic[label].append(tk.Label(frm_table))
-# 	table_dic[label][0].config(text=label, font=("Helvetica", 14), background="light steel blue")
-# 	table_dic[label][0].grid(row=row_counter, column=0, sticky=tk.W, pady=5, padx=50)
-# 	row_counter += 1
-
-# row_counter = 1
-# for label in labels:
-# 	table_dic[label].append(tk.Entry(frm_table))
-# 	table_dic[label][1].config(
-# 		font=("Helvetica", 14),
-# 		insertbackground="darkgray", insertontime=500, insertofftime=500,
-# 		readonlybackground="light steel blue"
-# 	)
-# 	table_dic[label][1].grid(row=row_counter, column=1, pady=5)
-# 	row_counter += 1
-
-# row_counter = 1
-# for label in labels:
-# 	table_dic[label].append(tk.Entry(frm_table))
-# 	table_dic[label][2].config(
-# 		font=("Helvetica", 14),
-# 		insertbackground="darkgray", insertontime=500, insertofftime=500,
-# 		readonlybackground="light steel blue"
-# 		)
-# 	table_dic[label][2].grid(row=row_counter, column=2, pady=5, padx=50)
-# 	row_counter += 1
-
+# create Label widgets from labels, assign them grid positions
 row_counter = 1
 for label in labels:
 	lab = tk.Label(frm_table)
@@ -115,42 +87,28 @@ for column_idx in range(2):
 		mapping.append(entry)
 		row_counter += 1
 
-# for label in labels:
-# 	table_dic[label] = (tk.Label(frm_table), tk.Entry(frm_table), tk.Entry(frm_table))
+frm_info = tk.Frame(root, bg="steel blue", pady=5)
+frm_info.pack()
+lbl_info = tk.Label(frm_info)
+info_text = str(word_counter-1) + " more words in the deck. 0/" + str(word_counter) + " declensions solved. Points: " + str(points)
+lbl_info.config(text=info_text, font=("Helvetica", 14), background="steel blue")
+lbl_info.pack()
 
-# 	table_dic[label][0].config(text=label, font=("Helvetica", 14), background="light steel blue")
-# 	table_dic[label][0].grid(row=row_counter, column=0, sticky=tk.W, pady=5, padx=50)
+frm_toolbar = tk.Frame(root, bg="steel blue", pady=20)
+frm_toolbar.pack(anchor=tk.N)
+btn_skip = tk.Button(frm_toolbar, text="Skip", width=10)
+btn_skip.pack()
 
-# 	table_dic[label][1].config(
-# 		font=("Helvetica", 14),
-# 		insertbackground="darkgray", insertontime=500, insertofftime=500,
-# 		readonlybackground="light steel blue"
-# 	)
-# 	table_dic[label][1].grid(row=row_counter, column=1, pady=5)
-
-# 	table_dic[label][2].config(
-# 		font=("Helvetica", 14),
-# 		insertbackground="darkgray", insertontime=500, insertofftime=500,
-# 		readonlybackground="light steel blue"
-# 		)
-# 	table_dic[label][2].grid(row=row_counter, column=2, pady=5, padx=50)
-
-# 	row_counter += 1
-
-def init_game():
+def get_next_word(event):
 	"""
-	Function to help initialize a game.
+	Event handler for a skip button. It jumps to the next declension table.
+	It's also used upon initialization.
 	"""
+
 	global words, answers, answered, word_var, title_var
-	max_words = len(declension_tables)
-	if max_words < 10:
-		words = random.sample(declension_tables, max_words)
-	else:
-		words = random.sample(declension_tables, 10)
+	global info_text, word_counter
 
-	# print words
 	answers = words.pop()
-	# print answers
 	answered = [False for answer in answers]
 	answered[0] = True
 	word_var.set(answers[0])
@@ -166,6 +124,27 @@ def init_game():
 		mapping[14].insert(0, "–")
 		mapping[14].config(state="readonly", justify=tk.CENTER)
 		answered[14] = True
+
+	print "frm_table.grid_bbox()[2]", frm_table.grid_bbox()[2]
+	resize_frames(frm_table.grid_bbox()[2])
+
+
+def init_game():
+	"""
+	Function to help initialize a game.
+	"""
+	global words, answers, answered, word_var, title_var
+	global info_text, word_counter, points
+	max_words = len(declension_tables)
+	if max_words < word_counter:
+		words = random.sample(declension_tables, max_words)
+		word_counter = max_words
+	else:
+		words = random.sample(declension_tables, word_counter)
+
+	get_next_word("<Button-1>")
+	points = 0
+
 
 def print_stuff(event):
 	"""Print some info while in root.mainloop()"""
@@ -189,19 +168,25 @@ def return_press(event):
 
 
 
-def resize_title(window_width):
+def resize_frames(window_width):
 	"""
 	Function that resizes the title based on width of the title words
 	and the desired width of the window ('window_width').
 	"""
 	label_width = lbl_title.winfo_reqwidth()
+	print label_width
 	frm_title.config(padx = (window_width - label_width) / 2) 
 	frm_table.config(padx = (window_width - frm_table.grid_bbox()[2]) / 2)
+	label_width = lbl_info.winfo_reqwidth()
+	print label_width
+	frm_info.config(padx = (window_width - label_width) / 2)
+	button_width = btn_skip.winfo_reqwidth()
+	print button_width
+	frm_toolbar.config(padx = (window_width - button_width) / 2)
 
 
-init_game()
 root.bind("<Return>", return_press)
+btn_skip.bind("<Button-1>", get_next_word)
 root.wait_visibility()
-print frm_table.grid_bbox()[2]
-resize_title(frm_table.grid_bbox()[2])
+init_game()
 root.mainloop()
