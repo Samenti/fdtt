@@ -154,7 +154,7 @@ def get_next_word(event):
 	
 	# initialize next declension table
 	answers = words.pop()
-	answered = [False for answer in answers]
+	answered = [False for dummy_idx in range(len(answers)-1)]
 	answered[0] = True
 	word_str = answers[0]
 	title_str = answers[0] + u"   –   " + answers[30]
@@ -239,6 +239,18 @@ def return_press(event):
 			entry_mapping[answer_idx].config(state="readonly", fg="green4", takefocus=0)
 			answered[answer_idx] = True
 			
+			points += 1 # award 1 point for getting an entry right
+			info_text = str(word_counter-1) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points)
+			lbl_info.config(text=info_text)
+			resize_frames(frm_table.grid_bbox()[2])
+
+			print "YAY!"
+			print answered
+			if False not in answered:
+				points += 5 # award 5 points for finishing whole declension table
+				get_next_word("<Button-1")
+				return
+
 			# to find the next focus:
 			focus_found = False
 			counter = 1
@@ -248,14 +260,7 @@ def return_press(event):
 					focus_found = True
 				else:
 					counter += 1
-
-			points += 1 # award 1 point for getting an entry right
-			info_text = str(word_counter-1) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points)
-			lbl_info.config(text=info_text)
-			if False not in answered:
-				points += 5 # award 5 points for finishing whole declension table
-				get_next_word()
-			print "YAY!"
+			
 		else:
 			entry_mapping[answer_idx].config(fg="red3")
 			print "INCORRECT!"
