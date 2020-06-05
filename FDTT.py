@@ -22,8 +22,8 @@ TEMPLATE = ("nominative", "genitive", "accusative", "partitive", "illative", "in
 "translative", "instructive", "comitative", "nominative_pl", "genitive_pl", "accusative_pl", "partitive_pl", "illative_pl", "inessive_pl",
 "allative_pl", "adessive_pl", "elative_pl", "ablative_pl", "essive_pl", "abessive_pl",
 "translative_pl", "instructive_pl", "comitative_pl", "english")
-title_var = tk.StringVar()
-word_var = tk.StringVar()
+title_str = ""
+word_str = ""
 word_counter = 10
 max_words = 10
 words = None
@@ -47,7 +47,8 @@ declension_tables = [(
 # make frames and labels
 frm_title = tk.Frame(root, bg="steel blue")
 frm_title.pack()
-lbl_title = tk.Label(frm_title, font=("Helvetica", 32), textvariable=title_var, bg="steel blue")
+lbl_title = tk.Label(frm_title, font=("Helvetica", 32), bg="steel blue")
+lbl_title.config(text=title_str)
 lbl_title.pack()
 
 frm_table = tk.Frame(root, pady=50, bg="light steel blue")
@@ -127,6 +128,8 @@ def end_game():
 	word_counter -= 1
 	info_text = str(word_counter) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points) + " New game?"
 	lbl_info.config(text=info_text)
+	for idx in range(len(entry_mapping)):
+		entry_mapping[idx].config(state="readonly")
 	btn_skip.config(text="New Game", width=15)
 	btn_skip.bind("<Button-1>", init_game)
 
@@ -141,31 +144,49 @@ def get_next_word(event):
 	It's also used upon initialization.
 	"""
 
-	global words, answers, answered, word_var, title_var
+	global words, answers, answered, word_str, title_str
 	global info_text, word_counter, start_flag
 
+	# commence the end of the game if there's no words left
 	if word_counter == 1:
 		end_game()
 		return
+	
+	# initialize next declension table
 	answers = words.pop()
 	answered = [False for answer in answers]
 	answered[0] = True
-	word_var.set(answers[0])
-	title_var.set(answers[0] + u"   –   " + answers[30])
+	word_str = answers[0]
+	title_str = answers[0] + u"   –   " + answers[30]
+	lbl_title.config(text=title_str)
+	
+	# set all entry boxes to be empty
+	for idx in range(len(entry_mapping)):
+		entry_mapping[idx].config(state=tk.NORMAL, justify=tk.LEFT)
+		entry_mapping[idx].delete(0, tk.END)
+
+	# set nominative singular to be solved
+	entry_mapping[0].insert(0, word_str)
 	entry_mapping[0].config(
-	textvariable=word_var, state="readonly", fg="green4"
+		state="readonly", fg="green4", takefocus=0
 	)
+
+	# set instructive and comitative singulars to be blank
 	if answers[13] == '':
 		entry_mapping[13].insert(0, "–")
-		entry_mapping[13].config(state="readonly", justify=tk.CENTER)
+		entry_mapping[13].config(state="readonly", justify=tk.CENTER, takefocus=0)
 		answered[13] = True
 	if answers[14] == '':
 		entry_mapping[14].insert(0, "–")
-		entry_mapping[14].config(state="readonly", justify=tk.CENTER)
+		entry_mapping[14].config(state="readonly", justify=tk.CENTER, takefocus=0)
 		answered[14] = True
+
+	# set initial focus to be in genitive singular entry box
+	entry_mapping[1].focus_set()
 
 	if not start_flag:
 		word_counter -= 1
+	
 	info_text = str(word_counter-1) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points)
 	lbl_info.config(text=info_text)
 	start_flag = False
@@ -197,27 +218,47 @@ def init_game(event):
 	btn_skip.bind("<Button-1>", get_next_word)
 	get_next_word("<Button-1>")
 
-	
-
-
-def print_stuff(event):
-	"""Print some info while in root.mainloop()"""
-	print "frm_table.grid_bbox()", frm_table.grid_bbox()
-
 def return_press(event):
 	"""
 	Event handler for an 'Enter key' press.
 	"""
+	global points, answered
+
 	current_widget = root.focus_get()
 	if isinstance(current_widget, tk.Entry):
 		input_text = current_widget.get()
 		answer_idx = entry_mapping.index(current_widget)
-		if answers[answer_idx] == input_text:
+
+		current_answers = []
+		if isinstance(answers[answer_idx], tuple):
+			current_answers.extend(answers[answer_idx])
+		else:
+			current_answers.append(answers[answer_idx])
+
+		if input_text in current_answers:
+			entry_mapping[answer_idx].config(state="readonly", fg="green4", takefocus=0)
+			answered[answer_idx] = True
+			
+			# to find the next focus:
+			focus_found = False
+			counter = 1
+			while not focus_found:
+				if not answered[(answer_idx + counter) % 30]:
+					entry_mapping[(answer_idx + counter) % 30].focus_set()
+					focus_found = True
+				else:
+					counter += 1
+
+			points += 1 # award 1 point for getting an entry right
+			info_text = str(word_counter-1) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points)
+			lbl_info.config(text=info_text)
+			if False not in answered:
+				points += 5 # award 5 points for finishing whole declension table
+				get_next_word()
 			print "YAY!"
 		else:
+			entry_mapping[answer_idx].config(fg="red3")
 			print "INCORRECT!"
-
-
 
 def resize_frames(window_width):
 	"""
@@ -225,14 +266,11 @@ def resize_frames(window_width):
 	and the desired width of the window ('window_width').
 	"""
 	label_width = lbl_title.winfo_reqwidth()
-	print label_width
 	frm_title.config(padx = (window_width - label_width) / 2) 
 	frm_table.config(padx = (window_width - frm_table.grid_bbox()[2]) / 2)
 	label_width = lbl_info.winfo_reqwidth()
-	print label_width
 	frm_info.config(padx = (window_width - label_width) / 2)
 	button_width = btn_skip.winfo_reqwidth()
-	print button_width
 	frm_toolbar.config(padx = (window_width - button_width) / 2)
 
 
