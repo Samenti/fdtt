@@ -30,18 +30,18 @@ words = None
 points = 0
 
 declension_tables = [(
-	'äiti', 'äidin', ('äiti', 'äidin'), 'äitiä', 'äitiin', 'äidissä',
-	'äidille', 'äidillä', 'äidistä', 'äidiltä', 'äitinä', 'äidittä', 'äidiksi', '', '',
-	'äidit', 'äitien', 'äidit', 'äitejä', 'äiteihin', 'äideissä',
-	'äideille', 'äideillä', 'äideistä', 'äideiltä', 'äiteinä', 'äideittä', 'äideiksi', 'äidein', 'äiteineen', 'mother'
-	), ('sokeri', 'sokerin', ('sokeri', 'sokerin'), 'sokeria', 'sokeriin', 'sokerissa',
-	'sokerille', 'sokerilla', 'sokerista', 'sokerilta', 'sokerina', 'sokeritta', 'sokeriksi', '', '',
-	'sokerit', ('sokerien', 'sokereiden', 'sokereitten'), 'sokerit', ('sokereita', 'sokereja'), 'sokereihin', 'sokereissa',
-	'sokereille', 'sokereilla', 'sokereista', 'sokereilta', 'sokereina', 'sokereitta', 'sokereiksi', 'sokerein', 'sokereineen', 'sugar'
-	), ('suola', 'suolan', ('suola', 'suolan'), 'suolaa', 'suolaan', 'suolassa',
-	'suolalle', 'suolalla', 'suolasta', 'suolalta', 'suolana', 'suolatta', 'suolaksi', '', '',
-	'suolat', ('suolojen', 'suolainrare'), 'suolat', 'suoloja', 'suoloihin', 'suoloissa',
-	'suoloille', 'suoloilla', 'suoloista', 'suoloilta', 'suoloina', 'suoloitta', 'suoloiksi', 'suoloin', 'suoloineen', 'salt')]
+	u'äiti', u'äidin', (u'äiti', u'äidin'), u'äitiä', u'äitiin', u'äidissä',
+	u'äidille', u'äidillä', u'äidistä', u'äidiltä', u'äitinä', u'äidittä', u'äidiksi', u'', u'',
+	u'äidit', u'äitien', u'äidit', u'äitejä', u'äiteihin', u'äideissä',
+	u'äideille', u'äideillä', u'äideistä', u'äideiltä', u'äiteinä', u'äideittä', u'äideiksi', u'äidein', u'äiteineen', u'mother'
+	), (u'sokeri', u'sokerin', (u'sokeri', u'sokerin'), u'sokeria', u'sokeriin', u'sokerissa',
+	u'sokerille', u'sokerilla', u'sokerista', u'sokerilta', u'sokerina', u'sokeritta', u'sokeriksi', u'', u'',
+	u'sokerit', (u'sokerien', u'sokereiden', u'sokereitten'), u'sokerit', (u'sokereita', u'sokereja'), u'sokereihin', u'sokereissa',
+	u'sokereille', u'sokereilla', u'sokereista', u'sokereilta', u'sokereina', u'sokereitta', u'sokereiksi', u'sokerein', u'sokereineen', u'sugar'
+	), (u'suola', u'suolan', (u'suola', u'suolan'), u'suolaa', u'suolaan', u'suolassa',
+	u'suolalle', u'suolalla', u'suolasta', u'suolalta', u'suolana', u'suolatta', u'suolaksi', u'', u'',
+	u'suolat', (u'suolojen', u'suolainrare'), u'suolat', u'suoloja', u'suoloihin', u'suoloissa',
+	u'suoloille', u'suoloilla', u'suoloista', u'suoloilta', u'suoloina', u'suoloitta', u'suoloiksi', u'suoloin', u'suoloineen', u'salt')]
 
 
 # make frames and labels
@@ -67,25 +67,26 @@ labels = [
 ]
 
 # create Label widgets from labels, assign them grid positions
+label_mapping = []
 row_counter = 1
 for label in labels:
-	lab = tk.Label(frm_table)
-	lab.config(text=label, font=("Helvetica", 14), background="light steel blue")
-	lab.grid(row=row_counter, column=0, sticky=tk.W, pady=5, padx=50)
+	label_mapping.append(tk.Label(frm_table))
+	label_mapping[row_counter-1].config(text=label, font=("Helvetica", 14), background="light steel blue")
+	label_mapping[row_counter-1].grid(row=row_counter, column=0, sticky=tk.W, pady=5, padx=50)
 	row_counter += 1
 
-mapping = []
+entry_mapping = []
 for column_idx in range(2):
 	row_counter = 1
 	for label in labels:
 		entry = tk.Entry(frm_table)
 		entry.config(
 		font=("Helvetica", 14),
-		insertbackground="darkgray", insertontime=500, insertofftime=500,
+		insertbackground="black", insertontime=500, insertofftime=500,
 		readonlybackground="light steel blue"
 		)
 		entry.grid(row=row_counter, column=column_idx+1, pady=5, padx=50)
-		mapping.append(entry)
+		entry_mapping.append(entry)
 		row_counter += 1
 
 frm_info = tk.Frame(root, bg="steel blue", pady=5)
@@ -100,6 +101,24 @@ frm_toolbar.pack(anchor=tk.N)
 btn_skip = tk.Button(frm_toolbar, text="Skip", width=10)
 btn_skip.pack()
 
+def change_color_scheme(dark, light):
+	"""
+	Changes the window's color scheme.
+	"""
+	frm_title.config(bg=dark)
+	lbl_title.config(bg=dark)
+	frm_table.config(bg=light)
+	lbl_table_null.config(bg=light)
+	lbl_table_sg.config(bg=light)
+	lbl_table_pl.config(bg=light)
+	for idx in range(len(entry_mapping)):
+		entry_mapping[idx].config(readonlybackground=light)
+	for idx in range(len(label_mapping)):
+		label_mapping[idx].config(bg=light)
+	frm_info.config(bg=dark)
+	lbl_info.config(bg=dark)
+	frm_toolbar.config(bg=dark)
+
 def end_game():
 	"""
 	Runs when the game has run out of words.
@@ -110,6 +129,9 @@ def end_game():
 	lbl_info.config(text=info_text)
 	btn_skip.config(text="New Game", width=15)
 	btn_skip.bind("<Button-1>", init_game)
+
+	change_color_scheme("forest green", "lime green")
+	resize_frames(frm_table.grid_bbox()[2])
 
 
 
@@ -129,17 +151,17 @@ def get_next_word(event):
 	answered = [False for answer in answers]
 	answered[0] = True
 	word_var.set(answers[0])
-	title_var.set(answers[0] + "   –   " + answers[30])
-	mapping[0].config(
+	title_var.set(answers[0] + u"   –   " + answers[30])
+	entry_mapping[0].config(
 	textvariable=word_var, state="readonly", fg="green4"
 	)
 	if answers[13] == '':
-		mapping[13].insert(0, "–")
-		mapping[13].config(state="readonly", justify=tk.CENTER)
+		entry_mapping[13].insert(0, "–")
+		entry_mapping[13].config(state="readonly", justify=tk.CENTER)
 		answered[13] = True
 	if answers[14] == '':
-		mapping[14].insert(0, "–")
-		mapping[14].config(state="readonly", justify=tk.CENTER)
+		entry_mapping[14].insert(0, "–")
+		entry_mapping[14].config(state="readonly", justify=tk.CENTER)
 		answered[14] = True
 
 	if not start_flag:
@@ -157,7 +179,10 @@ def init_game(event):
 	"""
 	global max_words, word_counter, words
 	global points, start_flag
+	word_counter = 10
 	max_words = len(declension_tables)
+	print "max_words", max_words
+	print "word_counter", word_counter
 	if max_words < word_counter:
 		words = random.sample(declension_tables, max_words)
 		word_counter = max_words
@@ -167,6 +192,9 @@ def init_game(event):
 
 	points = 0
 	start_flag = True
+	change_color_scheme("steel blue", "light steel blue")
+	btn_skip.config(text="Skip", width=10)
+	btn_skip.bind("<Button-1>", get_next_word)
 	get_next_word("<Button-1>")
 
 	
@@ -183,10 +211,7 @@ def return_press(event):
 	current_widget = root.focus_get()
 	if isinstance(current_widget, tk.Entry):
 		input_text = current_widget.get()
-		print input_text
-		answer_idx = mapping.index(current_widget)
-		print answers[answer_idx]
-		print input_text
+		answer_idx = entry_mapping.index(current_widget)
 		if answers[answer_idx] == input_text:
 			print "YAY!"
 		else:
