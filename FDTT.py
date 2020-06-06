@@ -218,52 +218,58 @@ def init_game(event):
 	btn_skip.bind("<Button-1>", get_next_word)
 	get_next_word("<Button-1>")
 
-def return_press(event):
+def return_press_handler(event):
 	"""
 	Event handler for an 'Enter key' press.
 	"""
 	global points, answered
 
 	current_widget = root.focus_get()
-	if isinstance(current_widget, tk.Entry):
-		input_text = current_widget.get()
-		answer_idx = entry_mapping.index(current_widget)
+	# if focus isn't an Entry widget, do nothing
+	if not isinstance(current_widget, tk.Entry):
+		return
 
-		current_answers = []
-		if isinstance(answers[answer_idx], tuple):
-			current_answers.extend(answers[answer_idx])
-		else:
-			current_answers.append(answers[answer_idx])
+	input_text = current_widget.get()
+	# if the Entry box is empty, do nothing
+	if len(input_text) == 0:
+		return
+	answer_idx = entry_mapping.index(current_widget) # entry_mapping's Entry widgets and the corresponding answers have the same indices
 
-		if input_text in current_answers:
-			entry_mapping[answer_idx].config(state="readonly", fg="green4", takefocus=0)
-			answered[answer_idx] = True
+	# handle the fact that there can be multiple correct forms for each answer
+	current_answers = []
+	if isinstance(answers[answer_idx], tuple):
+		current_answers.extend(answers[answer_idx])
+	else:
+		current_answers.append(answers[answer_idx])
+
+	if input_text in current_answers:
+		# if the answer given was correct
+		entry_mapping[answer_idx].config(state="readonly", fg="green4", takefocus=0)
+		answered[answer_idx] = True
 			
-			points += 1 # award 1 point for getting an entry right
-			info_text = str(word_counter-1) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points)
-			lbl_info.config(text=info_text)
-			resize_frames(frm_table.grid_bbox()[2])
+		points += 1 # award 1 point for getting an entry right
+		info_text = str(word_counter-1) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points)
+		lbl_info.config(text=info_text)
+		resize_frames(frm_table.grid_bbox()[2])
 
-			print "YAY!"
-			print answered
-			if False not in answered:
-				points += 5 # award 5 points for finishing whole declension table
-				get_next_word("<Button-1")
-				return
+		if False not in answered:
+			points += 5 # award 5 points for finishing whole declension table
+			get_next_word("<Button-1")
+			return
 
-			# to find the next focus:
-			focus_found = False
-			counter = 1
-			while not focus_found:
-				if not answered[(answer_idx + counter) % 30]:
-					entry_mapping[(answer_idx + counter) % 30].focus_set()
-					focus_found = True
-				else:
-					counter += 1
+		# to find the next focus:
+		focus_found = False
+		counter = 1
+		while not focus_found:
+			if not answered[(answer_idx + counter) % 30]:
+				entry_mapping[(answer_idx + counter) % 30].focus_set()
+				focus_found = True
+			else:
+				counter += 1
 			
-		else:
-			entry_mapping[answer_idx].config(fg="red3")
-			print "INCORRECT!"
+	else:
+		# if the answer given was incorrect
+		entry_mapping[answer_idx].config(fg="red3")
 
 def resize_frames(window_width):
 	"""
@@ -279,7 +285,7 @@ def resize_frames(window_width):
 	frm_toolbar.config(padx = (window_width - button_width) / 2)
 
 
-root.bind("<Return>", return_press)
+root.bind("<Return>", return_press_handler)
 btn_skip.bind("<Button-1>", get_next_word)
 root.wait_visibility()
 init_game("<Button-1")
