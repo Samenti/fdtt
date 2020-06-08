@@ -112,16 +112,18 @@ def change_info_text(game_state):
 	Change the info text in the info label (lbl_info) based on the state of the game.
 	'game_state' can be the strings "START", "ONGOING", "WORD_DONE" or "END".
 	"""
+	counter = max_words - word_counter
 	if game_state == "START":
 		info_text = "New session. You earn 1 point for each correct answer and 5 points for finishing the whole table.\n\n"
 	elif game_state == "WORD_DONE":
 		info_text = "Good job! You received 5 points for completing the table. Press 'Next' to continue.\n\n"
+		counter += 1
 	elif game_state == "END":
 		info_text = "Session over. Your score is " + str(points) + " out of " + str(max_points) + ".\n\n"
 	else:
 		info_text = ""
 	
-	info_text += str(max_words-word_counter) + "/" + str(max_words) + " declensions done."
+	info_text += str(counter) + "/" + str(max_words) + " declensions done."
 	if game_state != "END":
 		info_text += " Points: " + str(points)
 
@@ -200,7 +202,7 @@ def get_next_word(event):
 	
 	# set all entry boxes to be empty
 	for idx in range(len(entry_mapping)):
-		entry_mapping[idx].config(state=tk.NORMAL, justify=tk.LEFT)
+		entry_mapping[idx].config(state=tk.NORMAL, fg="black", justify=tk.LEFT)
 		entry_mapping[idx].delete(0, tk.END)
 
 	# set nominative singular to be solved
