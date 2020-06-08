@@ -17,17 +17,20 @@ root = tk.Tk()
 root.title("Finnish Declension Tables Tester")
 
 # globals and contants
-TEMPLATE = ("nominative", "genitive", "accusative", "partitive", "illative", "inessive",
-"allative", "adessive", "elative", "ablative", "essive", "abessive",
-"translative", "instructive", "comitative", "nominative_pl", "genitive_pl", "accusative_pl", "partitive_pl", "illative_pl", "inessive_pl",
-"allative_pl", "adessive_pl", "elative_pl", "ablative_pl", "essive_pl", "abessive_pl",
-"translative_pl", "instructive_pl", "comitative_pl", "english")
+# template that shows the data structure for one declension table
+TEMPLATE = (u"nominative_sg", u"genitive_sg", (u"accusative_sg_1", u"accusative_sg_2"), u"partitive_sg", u"illative_sg", u"inessive_sg",
+u"allative_sg", u"adessive_sg", u"elative_sg", u"ablative_sg", u"essive_sg", u"abessive_sg", u"translative_sg", u"instructive_sg", u"comitative_sg",
+u"nominative_pl", u"genitive_pl", u"accusative_pl", u"partitive_pl", u"illative_pl", u"inessive_pl",
+u"allative_pl", u"adessive_pl", u"elative_pl", u"ablative_pl", u"essive_pl", u"abessive_pl", u"translative_pl", u"instructive_pl", u"comitative_pl", u"english")
+GAME_LENGTH = 10
 title_str = ""
 word_str = ""
-word_counter = 10
-max_words = 10
-words = None
+word_counter = GAME_LENGTH    # keeps track of the current word's number in a game
+max_words = 0    # number of words pulled from the deck, 'declension_tables', at the start of the game
+words = None    # list that gets built from 'declension_tables' for each game
 points = 0
+max_points = 0    # global to store the maximum amount of points receivable
+start_flag = True    # boolean flag to mark the start of the game
 
 declension_tables = [(
 	u'äiti', u'äidin', (u'äiti', u'äidin'), u'äitiä', u'äitiin', u'äidissä',
@@ -76,6 +79,7 @@ for label in labels:
 	label_mapping[row_counter-1].grid(row=row_counter, column=0, sticky=tk.W, pady=5, padx=50)
 	row_counter += 1
 
+# create Entry widgets, two for each label
 entry_mapping = []
 for column_idx in range(2):
 	row_counter = 1
@@ -93,14 +97,36 @@ for column_idx in range(2):
 frm_info = tk.Frame(root, bg="steel blue", pady=5)
 frm_info.pack()
 lbl_info = tk.Label(frm_info)
-info_text = str(word_counter-1) + " more words in the deck. 0/" + str(word_counter) + " declensions done. Points: " + str(points)
-lbl_info.config(text=info_text, font=("Helvetica", 14), background="steel blue")
+# info_text = str(word_counter-1) + " more words in the deck. 0/" + str(word_counter) + " declensions done. Points: " + str(points)
+lbl_info.config(text="<info text>", font=("Helvetica", 14), background="steel blue")
 lbl_info.pack()
 
 frm_toolbar = tk.Frame(root, bg="steel blue", pady=20)
 frm_toolbar.pack(anchor=tk.N)
 btn_skip = tk.Button(frm_toolbar, text="Skip", width=10)
 btn_skip.pack()
+
+
+def change_info_text(game_state):
+	"""
+	Change the info text in the info label (lbl_info) based on the state of the game.
+	'game_state' can be the strings "START", "ONGOING", "WORD_DONE" or "END".
+	"""
+	if game_state == "START":
+		info_text = "New session. You earn 1 point for each correct answer and 5 points for finishing the whole table.\n\n"
+	elif game_state == "WORD_DONE":
+		info_text = "Good job! You received 5 points for completing the table. Press 'Next' to continue.\n\n"
+	elif game_state == "END":
+		info_text = "Session over. Your score is " + str(points) + " out of " + str(max_points) + ".\n\n"
+	else:
+		info_text = ""
+	
+	info_text += str(max_words-word_counter) + "/" + str(max_words) + " declensions done."
+	if game_state != "END":
+		info_text += " Points: " + str(points)
+
+	lbl_info.config(text=info_text)
+
 
 def change_color_scheme(dark, light):
 	"""
@@ -120,14 +146,28 @@ def change_color_scheme(dark, light):
 	lbl_info.config(bg=dark)
 	frm_toolbar.config(bg=dark)
 
+
+def resize_frames(window_width):
+	"""
+	Function that resizes frames based on width of the labels
+	and the desired width of the window ('window_width').
+	"""
+	label_width = lbl_title.winfo_reqwidth()
+	frm_title.config(padx = (window_width - label_width) / 2) 
+	frm_table.config(padx = (window_width - frm_table.grid_bbox()[2]) / 2)
+	label_width = lbl_info.winfo_reqwidth()
+	frm_info.config(padx = (window_width - label_width) / 2)
+	button_width = btn_skip.winfo_reqwidth()
+	frm_toolbar.config(padx = (window_width - button_width) / 2)
+
+
 def end_game():
 	"""
 	Runs when the game has run out of words.
 	"""
 	global info_text, word_counter
 	word_counter -= 1
-	info_text = str(word_counter) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points) + " New game?"
-	lbl_info.config(text=info_text)
+	change_info_text("END")
 	for idx in range(len(entry_mapping)):
 		entry_mapping[idx].config(state="readonly")
 	btn_skip.config(text="New Game", width=15)
@@ -137,21 +177,19 @@ def end_game():
 	resize_frames(frm_table.grid_bbox()[2])
 
 
-
 def get_next_word(event):
 	"""
 	Event handler for a skip button. It jumps to the next declension table.
 	It's also used upon initialization.
 	"""
-
 	global words, answers, answered, word_str, title_str
 	global info_text, word_counter, start_flag
-
-	# commence the end of the game if there's no words left
+	
+	# commence the end of the game if there's no words left when user presses skip
 	if word_counter == 1:
 		end_game()
 		return
-	
+
 	# initialize next declension table
 	answers = words.pop()
 	answered = [False for dummy_idx in range(len(answers)-1)]
@@ -183,14 +221,15 @@ def get_next_word(event):
 
 	# set initial focus to be in genitive singular entry box
 	entry_mapping[1].focus_set()
-
-	if not start_flag:
-		word_counter -= 1
 	
-	info_text = str(word_counter-1) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points)
-	lbl_info.config(text=info_text)
+	if start_flag:
+		change_info_text("START")
+	else:
+		word_counter -= 1
+		change_info_text("ONGOING")
+	
 	start_flag = False
-	print "frm_table.grid_bbox()[2]", frm_table.grid_bbox()[2]
+	change_color_scheme("steel blue", "light steel blue")
 	resize_frames(frm_table.grid_bbox()[2])
 
 
@@ -198,25 +237,34 @@ def init_game(event):
 	"""
 	Function to help initialize a game.
 	"""
-	global max_words, word_counter, words
-	global points, start_flag
-	word_counter = 10
-	max_words = len(declension_tables)
-	print "max_words", max_words
-	print "word_counter", word_counter
-	if max_words < word_counter:
+	global word_counter, max_words, words
+	global points, max_points, start_flag
+	
+	max_words = len(declension_tables)    # set the max_words global to the maximally possible length of the game
+	
+	# pick words for the game
+	if max_words < GAME_LENGTH:
 		words = random.sample(declension_tables, max_words)
-		word_counter = max_words
+		word_counter = max_words    # set the word_counter global to the maximally possible game length
 	else:
-		words = random.sample(declension_tables, word_counter)
-		max_words = word_counter
+		words = random.sample(declension_tables, GAME_LENGTH)
+		word_counter = GAME_LENGTH    # set the word_counter global to the predetermined game length
+		max_words = word_counter    # the max_words global now functions as the length of the game
 
 	points = 0
-	start_flag = True
+
+	# calculate the maximum score achievable
+	blanks = 0
+	for word in words:
+		blanks += word.count(u'')
+	max_points = max_words * 34 - blanks
+	
+	start_flag = True    # set a flag so the program knows the game has just started
 	change_color_scheme("steel blue", "light steel blue")
 	btn_skip.config(text="Skip", width=10)
 	btn_skip.bind("<Button-1>", get_next_word)
 	get_next_word("<Button-1>")
+
 
 def return_press_handler(event):
 	"""
@@ -247,15 +295,22 @@ def return_press_handler(event):
 		entry_mapping[answer_idx].config(state="readonly", fg="green4", takefocus=0)
 		answered[answer_idx] = True
 			
-		points += 1 # award 1 point for getting an entry right
-		info_text = str(word_counter-1) + " more words in the deck. " + str(max_words - word_counter) + "/" + str(max_words) + " declensions done. Points: " + str(points)
-		lbl_info.config(text=info_text)
+		points += 1 # award 1 point for getting an answer right
+		change_info_text("ONGOING")
 		resize_frames(frm_table.grid_bbox()[2])
 
 		if False not in answered:
-			points += 5 # award 5 points for finishing whole declension table
-			get_next_word("<Button-1")
-			return
+			if word_counter == 1:
+				end_game()    # commence the end of the game if there's no words left
+				return
+			else:
+				points += 5 # award 5 points for finishing whole declension table
+				change_info_text("WORD_DONE")
+				change_color_scheme("LightGoldenrod3", "LightGoldenrod2")
+				resize_frames(frm_table.grid_bbox()[2])
+				btn_skip.config(text="Next", width=10)
+				btn_skip.bind(get_next_word)
+				return
 
 		# to find the next focus:
 		focus_found = False
@@ -271,18 +326,6 @@ def return_press_handler(event):
 		# if the answer given was incorrect
 		entry_mapping[answer_idx].config(fg="red3")
 
-def resize_frames(window_width):
-	"""
-	Function that resizes the title based on width of the title words
-	and the desired width of the window ('window_width').
-	"""
-	label_width = lbl_title.winfo_reqwidth()
-	frm_title.config(padx = (window_width - label_width) / 2) 
-	frm_table.config(padx = (window_width - frm_table.grid_bbox()[2]) / 2)
-	label_width = lbl_info.winfo_reqwidth()
-	frm_info.config(padx = (window_width - label_width) / 2)
-	button_width = btn_skip.winfo_reqwidth()
-	frm_toolbar.config(padx = (window_width - button_width) / 2)
 
 
 root.bind("<Return>", return_press_handler)
