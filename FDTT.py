@@ -5,11 +5,12 @@ Finnish Declension Tables Tester
 --------------------------------
 This is a simple GUI-based python program that helps with
 learning Finnish nominal declension tables.
+Updated for Python 3.
 """
 
 # Max line length w/ --- w/o flowing text blocks (PEP 8 style guide): 72 --- 79
 
-import Tkinter as tk
+import tkinter as tk
 import random
 
 # make root widget
@@ -18,10 +19,10 @@ root.title("Finnish Declension Tables Tester")
 
 # globals and contants
 # template that shows the data structure for one declension table
-TEMPLATE = (u"nominative_sg", u"genitive_sg", (u"accusative_sg_1", u"accusative_sg_2"), u"partitive_sg", u"illative_sg", u"inessive_sg",
-u"allative_sg", u"adessive_sg", u"elative_sg", u"ablative_sg", u"essive_sg", u"abessive_sg", u"translative_sg", u"instructive_sg", u"comitative_sg",
-u"nominative_pl", u"genitive_pl", u"accusative_pl", u"partitive_pl", u"illative_pl", u"inessive_pl",
-u"allative_pl", u"adessive_pl", u"elative_pl", u"ablative_pl", u"essive_pl", u"abessive_pl", u"translative_pl", u"instructive_pl", u"comitative_pl", u"english")
+TEMPLATE = ("nominative_sg", "genitive_sg", ("accusative_sg_1", "accusative_sg_2"), "partitive_sg", "illative_sg", "inessive_sg",
+"allative_sg", "adessive_sg", "elative_sg", "ablative_sg", "essive_sg", "abessive_sg", "translative_sg", "instructive_sg", "comitative_sg",
+"nominative_pl", "genitive_pl", "accusative_pl", "partitive_pl", "illative_pl", "inessive_pl",
+"allative_pl", "adessive_pl", "elative_pl", "ablative_pl", "essive_pl", "abessive_pl", "translative_pl", "instructive_pl", "comitative_pl", "english")
 GAME_LENGTH = 10
 title_str = ""
 word_str = ""
@@ -33,18 +34,18 @@ max_points = 0    # global to store the maximum amount of points receivable
 start_flag = True    # boolean flag to mark the start of the game
 
 declension_tables = [(
-	u'äiti', u'äidin', (u'äiti', u'äidin'), u'äitiä', u'äitiin', u'äidissä',
-	u'äidille', u'äidillä', u'äidistä', u'äidiltä', u'äitinä', u'äidittä', u'äidiksi', u'', u'',
-	u'äidit', u'äitien', u'äidit', u'äitejä', u'äiteihin', u'äideissä',
-	u'äideille', u'äideillä', u'äideistä', u'äideiltä', u'äiteinä', u'äideittä', u'äideiksi', u'äidein', u'äiteineen', u'mother'
-	), (u'sokeri', u'sokerin', (u'sokeri', u'sokerin'), u'sokeria', u'sokeriin', u'sokerissa',
-	u'sokerille', u'sokerilla', u'sokerista', u'sokerilta', u'sokerina', u'sokeritta', u'sokeriksi', u'', u'',
-	u'sokerit', (u'sokerien', u'sokereiden', u'sokereitten'), u'sokerit', (u'sokereita', u'sokereja'), u'sokereihin', u'sokereissa',
-	u'sokereille', u'sokereilla', u'sokereista', u'sokereilta', u'sokereina', u'sokereitta', u'sokereiksi', u'sokerein', u'sokereineen', u'sugar'
-	), (u'suola', u'suolan', (u'suola', u'suolan'), u'suolaa', u'suolaan', u'suolassa',
-	u'suolalle', u'suolalla', u'suolasta', u'suolalta', u'suolana', u'suolatta', u'suolaksi', u'', u'',
-	u'suolat', (u'suolojen', u'suolainrare'), u'suolat', u'suoloja', u'suoloihin', u'suoloissa',
-	u'suoloille', u'suoloilla', u'suoloista', u'suoloilta', u'suoloina', u'suoloitta', u'suoloiksi', u'suoloin', u'suoloineen', u'salt')]
+	'äiti', 'äidin', ('äiti', 'äidin'), 'äitiä', 'äitiin', 'äidissä',
+	'äidille', 'äidillä', 'äidistä', 'äidiltä', 'äitinä', 'äidittä', 'äidiksi', '', '',
+	'äidit', 'äitien', 'äidit', 'äitejä', 'äiteihin', 'äideissä',
+	'äideille', 'äideillä', 'äideistä', 'äideiltä', 'äiteinä', 'äideittä', 'äideiksi', 'äidein', 'äiteineen', 'mother'
+	), ('sokeri', 'sokerin', ('sokeri', 'sokerin'), 'sokeria', 'sokeriin', 'sokerissa',
+	'sokerille', 'sokerilla', 'sokerista', 'sokerilta', 'sokerina', 'sokeritta', 'sokeriksi', '', '',
+	'sokerit', ('sokerien', 'sokereiden', 'sokereitten'), 'sokerit', ('sokereita', 'sokereja'), 'sokereihin', 'sokereissa',
+	'sokereille', 'sokereilla', 'sokereista', 'sokereilta', 'sokereina', 'sokereitta', 'sokereiksi', 'sokerein', 'sokereineen', 'sugar'
+	), ('suola', 'suolan', ('suola', 'suolan'), 'suolaa', 'suolaan', 'suolassa',
+	'suolalle', 'suolalla', 'suolasta', 'suolalta', 'suolana', 'suolatta', 'suolaksi', '', '',
+	'suolat', ('suolojen', 'suolainrare'), 'suolat', 'suoloja', 'suoloihin', 'suoloissa',
+	'suoloille', 'suoloilla', 'suoloista', 'suoloilta', 'suoloina', 'suoloitta', 'suoloiksi', 'suoloin', 'suoloineen', 'salt')]
 
 
 # make frames and labels
@@ -197,7 +198,7 @@ def get_next_word(event):
 	answered = [False for dummy_idx in range(len(answers)-1)]
 	answered[0] = True
 	word_str = answers[0]
-	title_str = answers[0] + u"   –   " + answers[30]
+	title_str = answers[0] + "   –   " + answers[30]
 	lbl_title.config(text=title_str)
 	
 	# set all entry boxes to be empty
@@ -258,7 +259,7 @@ def init_game(event):
 	# calculate the maximum score achievable
 	blanks = 0
 	for word in words:
-		blanks += word.count(u'')
+		blanks += word.count('')
 	max_points = max_words * 34 - blanks
 	
 	start_flag = True    # set a flag so the program knows the game has just started
