@@ -12,6 +12,8 @@ Updated for Python 3.
 
 import tkinter as tk
 import random
+import io
+import json
 
 # make root widget
 root = tk.Tk()
@@ -19,6 +21,16 @@ root.title("Finnish Declension Tables Tester")
 
 # globals and contants
 # template that shows the data structure for one declension table
+# TITLE_TEXT_SIZE = 32
+# LABEL_TEXT_SIZE = 14
+# TABLE_PADDING = 50
+# TOOLBAR_PADDING = 20
+# INT_PADDING = 5
+TITLE_TEXT_SIZE = 26
+LABEL_TEXT_SIZE = 8
+TABLE_PADDING = 20
+TOOLBAR_PADDING = 10
+INT_PADDING = 3
 TEMPLATE = ("nominative_sg", "genitive_sg", ("accusative_sg_1", "accusative_sg_2"), "partitive_sg", "illative_sg", "inessive_sg",
 "allative_sg", "adessive_sg", "elative_sg", "ablative_sg", "essive_sg", "abessive_sg", "translative_sg", "instructive_sg", "comitative_sg",
 "nominative_pl", "genitive_pl", "accusative_pl", "partitive_pl", "illative_pl", "inessive_pl",
@@ -33,36 +45,25 @@ points = 0
 max_points = 0    # global to store the maximum amount of points receivable
 start_flag = True    # boolean flag to mark the start of the game
 
-declension_tables = [(
-	'äiti', 'äidin', ('äiti', 'äidin'), 'äitiä', 'äitiin', 'äidissä',
-	'äidille', 'äidillä', 'äidistä', 'äidiltä', 'äitinä', 'äidittä', 'äidiksi', '', '',
-	'äidit', 'äitien', 'äidit', 'äitejä', 'äiteihin', 'äideissä',
-	'äideille', 'äideillä', 'äideistä', 'äideiltä', 'äiteinä', 'äideittä', 'äideiksi', 'äidein', 'äiteineen', 'mother'
-	), ('sokeri', 'sokerin', ('sokeri', 'sokerin'), 'sokeria', 'sokeriin', 'sokerissa',
-	'sokerille', 'sokerilla', 'sokerista', 'sokerilta', 'sokerina', 'sokeritta', 'sokeriksi', '', '',
-	'sokerit', ('sokerien', 'sokereiden', 'sokereitten'), 'sokerit', ('sokereita', 'sokereja'), 'sokereihin', 'sokereissa',
-	'sokereille', 'sokereilla', 'sokereista', 'sokereilta', 'sokereina', 'sokereitta', 'sokereiksi', 'sokerein', 'sokereineen', 'sugar'
-	), ('suola', 'suolan', ('suola', 'suolan'), 'suolaa', 'suolaan', 'suolassa',
-	'suolalle', 'suolalla', 'suolasta', 'suolalta', 'suolana', 'suolatta', 'suolaksi', '', '',
-	'suolat', ('suolojen', 'suolainrare'), 'suolat', 'suoloja', 'suoloihin', 'suoloissa',
-	'suoloille', 'suoloilla', 'suoloista', 'suoloilta', 'suoloina', 'suoloitta', 'suoloiksi', 'suoloin', 'suoloineen', 'salt')]
-
+declension_tables = []
+with io.open('tables.txt', mode='r', encoding="utf-8") as tables_file:
+	declension_tables = json.load(tables_file)
 
 # make frames and labels
 frm_title = tk.Frame(root, bg="steel blue")
 frm_title.pack()
-lbl_title = tk.Label(frm_title, font=("Helvetica", 32), bg="steel blue")
+lbl_title = tk.Label(frm_title, font=("Helvetica", TITLE_TEXT_SIZE), bg="steel blue")
 lbl_title.config(text=title_str)
 lbl_title.pack()
 
-frm_table = tk.Frame(root, pady=50, bg="light steel blue")
+frm_table = tk.Frame(root, pady=TABLE_PADDING, bg="light steel blue")
 frm_table.pack()
 
-lbl_table_null = tk.Label(frm_table, text="", font=("Helvetica", 14), background="light steel blue")
+lbl_table_null = tk.Label(frm_table, text="", font=("Helvetica", LABEL_TEXT_SIZE), background="light steel blue")
 lbl_table_null.grid(row=0, column=0)
-lbl_table_sg = tk.Label(frm_table, text="singular", font=("Helvetica", 14), background="light steel blue")
+lbl_table_sg = tk.Label(frm_table, text="singular", font=("Helvetica", LABEL_TEXT_SIZE), background="light steel blue")
 lbl_table_sg.grid(row=0, column=1)
-lbl_table_pl = tk.Label(frm_table, text="plural", font=("Helvetica", 14), background="light steel blue")
+lbl_table_pl = tk.Label(frm_table, text="plural", font=("Helvetica", LABEL_TEXT_SIZE), background="light steel blue")
 lbl_table_pl.grid(row=0, column=2)
 
 labels = [
@@ -76,8 +77,8 @@ label_mapping = []
 row_counter = 1
 for label in labels:
 	label_mapping.append(tk.Label(frm_table))
-	label_mapping[row_counter-1].config(text=label, font=("Helvetica", 14), background="light steel blue")
-	label_mapping[row_counter-1].grid(row=row_counter, column=0, sticky=tk.W, pady=5, padx=50)
+	label_mapping[row_counter-1].config(text=label, font=("Helvetica", LABEL_TEXT_SIZE), background="light steel blue")
+	label_mapping[row_counter-1].grid(row=row_counter, column=0, sticky=tk.W, pady=INT_PADDING, padx=50)
 	row_counter += 1
 
 # create Entry widgets, two for each label
@@ -87,22 +88,22 @@ for column_idx in range(2):
 	for label in labels:
 		entry = tk.Entry(frm_table)
 		entry.config(
-		font=("Helvetica", 14),
+		font=("Helvetica", LABEL_TEXT_SIZE),
 		insertbackground="black", insertontime=500, insertofftime=500,
 		readonlybackground="light steel blue"
 		)
-		entry.grid(row=row_counter, column=column_idx+1, pady=5, padx=50)
+		entry.grid(row=row_counter, column=column_idx+1, pady=INT_PADDING, padx=50)
 		entry_mapping.append(entry)
 		row_counter += 1
 
-frm_info = tk.Frame(root, bg="steel blue", pady=5)
+frm_info = tk.Frame(root, bg="steel blue", pady=INT_PADDING)
 frm_info.pack()
 lbl_info = tk.Label(frm_info)
 # info_text = str(word_counter-1) + " more words in the deck. 0/" + str(word_counter) + " declensions done. Points: " + str(points)
-lbl_info.config(text="<info text>", font=("Helvetica", 14), background="steel blue")
+lbl_info.config(text="<info text>", font=("Helvetica", LABEL_TEXT_SIZE), background="steel blue")
 lbl_info.pack()
 
-frm_toolbar = tk.Frame(root, bg="steel blue", pady=20)
+frm_toolbar = tk.Frame(root, bg="steel blue", pady=TOOLBAR_PADDING)
 frm_toolbar.pack(anchor=tk.N)
 btn_skip = tk.Button(frm_toolbar, text="Skip", width=10)
 btn_skip.pack()
