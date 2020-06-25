@@ -21,21 +21,19 @@ root.title("Finnish Declension Tables Tester")
 
 # globals and contants
 # template that shows the data structure for one declension table
-# TITLE_TEXT_SIZE = 32
-# LABEL_TEXT_SIZE = 14
-# TABLE_PADDING = 50
-# TOOLBAR_PADDING = 20
-# INT_PADDING = 5
-TITLE_TEXT_SIZE = 26
-LABEL_TEXT_SIZE = 8
-TABLE_PADDING = 20
-TOOLBAR_PADDING = 10
-INT_PADDING = 3
 TEMPLATE = ("nominative_sg", "genitive_sg", ("accusative_sg_1", "accusative_sg_2"), "partitive_sg", "illative_sg", "inessive_sg",
 "allative_sg", "adessive_sg", "elative_sg", "ablative_sg", "essive_sg", "abessive_sg", "translative_sg", "instructive_sg", "comitative_sg",
 "nominative_pl", "genitive_pl", "accusative_pl", "partitive_pl", "illative_pl", "inessive_pl",
 "allative_pl", "adessive_pl", "elative_pl", "ablative_pl", "essive_pl", "abessive_pl", "translative_pl", "instructive_pl", "comitative_pl", "english")
 GAME_LENGTH = 10
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+print("screen width x height:", screen_width, "x", screen_height)
+title_text_size = int(screen_height / 1080 * 32)
+label_text_size = int(screen_height / 1080 * 14)
+table_padding = int(screen_height / 1080 * 50)
+toolbar_padding = int(screen_height / 1080 * 20)
+int_padding = int(screen_height / 1080 * 5)
 title_str = ""
 word_str = ""
 word_counter = GAME_LENGTH    # keeps track of the current word's number in a game
@@ -52,18 +50,18 @@ with io.open('tables.txt', mode='r', encoding="utf-8") as tables_file:
 # make frames and labels
 frm_title = tk.Frame(root, bg="steel blue")
 frm_title.pack()
-lbl_title = tk.Label(frm_title, font=("Helvetica", TITLE_TEXT_SIZE), bg="steel blue")
+lbl_title = tk.Label(frm_title, font=("Helvetica", title_text_size), bg="steel blue")
 lbl_title.config(text=title_str)
 lbl_title.pack()
 
-frm_table = tk.Frame(root, pady=TABLE_PADDING, bg="light steel blue")
+frm_table = tk.Frame(root, pady=table_padding, bg="light steel blue")
 frm_table.pack()
 
-lbl_table_null = tk.Label(frm_table, text="", font=("Helvetica", LABEL_TEXT_SIZE), background="light steel blue")
+lbl_table_null = tk.Label(frm_table, text="", font=("Helvetica", label_text_size), background="light steel blue")
 lbl_table_null.grid(row=0, column=0)
-lbl_table_sg = tk.Label(frm_table, text="singular", font=("Helvetica", LABEL_TEXT_SIZE), background="light steel blue")
+lbl_table_sg = tk.Label(frm_table, text="singular", font=("Helvetica", label_text_size), background="light steel blue")
 lbl_table_sg.grid(row=0, column=1)
-lbl_table_pl = tk.Label(frm_table, text="plural", font=("Helvetica", LABEL_TEXT_SIZE), background="light steel blue")
+lbl_table_pl = tk.Label(frm_table, text="plural", font=("Helvetica", label_text_size), background="light steel blue")
 lbl_table_pl.grid(row=0, column=2)
 
 labels = [
@@ -77,8 +75,8 @@ label_mapping = []
 row_counter = 1
 for label in labels:
 	label_mapping.append(tk.Label(frm_table))
-	label_mapping[row_counter-1].config(text=label, font=("Helvetica", LABEL_TEXT_SIZE), background="light steel blue")
-	label_mapping[row_counter-1].grid(row=row_counter, column=0, sticky=tk.W, pady=INT_PADDING, padx=50)
+	label_mapping[row_counter-1].config(text=label, font=("Helvetica", label_text_size), background="light steel blue")
+	label_mapping[row_counter-1].grid(row=row_counter, column=0, sticky=tk.W, pady=int_padding, padx=50)
 	row_counter += 1
 
 # create Entry widgets, two for each label
@@ -88,22 +86,22 @@ for column_idx in range(2):
 	for label in labels:
 		entry = tk.Entry(frm_table)
 		entry.config(
-		font=("Helvetica", LABEL_TEXT_SIZE),
+		font=("Helvetica", label_text_size),
 		insertbackground="black", insertontime=500, insertofftime=500,
 		readonlybackground="light steel blue"
 		)
-		entry.grid(row=row_counter, column=column_idx+1, pady=INT_PADDING, padx=50)
+		entry.grid(row=row_counter, column=column_idx+1, pady=int_padding, padx=50)
 		entry_mapping.append(entry)
 		row_counter += 1
 
-frm_info = tk.Frame(root, bg="steel blue", pady=INT_PADDING)
+frm_info = tk.Frame(root, bg="steel blue", pady=int_padding)
 frm_info.pack()
 lbl_info = tk.Label(frm_info)
 # info_text = str(word_counter-1) + " more words in the deck. 0/" + str(word_counter) + " declensions done. Points: " + str(points)
-lbl_info.config(text="<info text>", font=("Helvetica", LABEL_TEXT_SIZE), background="steel blue")
+lbl_info.config(text="<info text>", font=("Helvetica", label_text_size), background="steel blue")
 lbl_info.pack()
 
-frm_toolbar = tk.Frame(root, bg="steel blue", pady=TOOLBAR_PADDING)
+frm_toolbar = tk.Frame(root, bg="steel blue", pady=toolbar_padding)
 frm_toolbar.pack(anchor=tk.N)
 btn_skip = tk.Button(frm_toolbar, text="Skip", width=10)
 btn_skip.pack()
@@ -150,6 +148,12 @@ def change_color_scheme(dark, light):
 	lbl_info.config(bg=dark)
 	frm_toolbar.config(bg=dark)
 
+
+def print_info(event):
+	"""
+	Print some info into the console in mainloop.
+	"""
+	print("screen width x height:", screen_width, "x", screen_height)
 
 def resize_frames(window_width):
 	"""
@@ -333,6 +337,7 @@ def return_press_handler(event):
 
 
 root.bind("<Return>", return_press_handler)
+root.bind("<Key-m>", print_info)
 btn_skip.bind("<Button-1>", get_next_word)
 root.wait_visibility()
 init_game("<Button-1")
