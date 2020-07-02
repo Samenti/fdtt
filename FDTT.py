@@ -194,9 +194,7 @@ def change_color_scheme(dark, light):
 
 def print_info(event):
 	"""Print some info to the console in mainloop."""
-
-	print("screen width x height:", screen_width, "x", screen_height)
-	print("frm_table.grid_bbox():", frm_table.grid_bbox())
+	pass
 
 
 def resize_frames():
@@ -204,7 +202,7 @@ def resize_frames():
 	and the dimensions of the screen.
 	"""
 	
-	pixels_height = tkFont.Font(font='Helvetica').metrics('linespace')
+	pixels_height = tkFont.Font(family='Helvetica').metrics('linespace')
 	table_height = frm_table.grid_bbox()[3]
 	new_height = int(table_height*0.6/pixels_height)
 	lbl_info.config(height=new_height)
@@ -249,7 +247,9 @@ def get_next_word(event):
 	
 	# Set all entry boxes to be empty
 	for idx in range(len(entry_mapping)):
-		entry_mapping[idx].config(state=tk.NORMAL, fg="black", justify=tk.LEFT)
+		entry_mapping[idx].config(
+			state=tk.NORMAL, fg="black", justify=tk.LEFT, takefocus=1
+			)
 		entry_mapping[idx].delete(0, tk.END)
 
 	# Set nominative singular to be solved
@@ -267,6 +267,8 @@ def get_next_word(event):
 				)
 			answered[idx] = True
 
+	# Transform the Next button back into a Skip button after word-completion
+	btn_skip.config(text="Skip", width=10)
 	# Set initial focus to be in genitive singular entry box
 	entry_mapping[1].focus_set()
 	
@@ -362,6 +364,7 @@ def return_press_handler(event):
 				end_game()
 				return
 			else:
+				# Idle on completion screen if the table is complete
 				points += 5
 				change_info_text("WORD_DONE")
 				change_color_scheme("LightGoldenrod3", "LightGoldenrod2")
@@ -387,7 +390,7 @@ def return_press_handler(event):
 
 
 root.bind("<Return>", return_press_handler)
-root.bind("<Key-m>", print_info)
+# root.bind("<Key-m>", print_info)
 btn_skip.bind("<Button-1>", get_next_word)
 root.wait_visibility()
 init_game("<Button-1")
