@@ -14,6 +14,26 @@ import random
 import io
 import json
 
+class Tester:
+	"""Class to encapsulate the GUI elements and game logic for the Tester"""
+
+	def __init__(self, game_length):
+		self.window = tk.Tk()
+		self.window.title("Finnish Declension Tables Tester")
+		self.window.config(bg="steel blue")
+
+		self.game_length = game_length
+
+		screen_height = self.window.winfo_screenheight()
+		title_text_size = int(screen_height / 1080 * 32)
+		label_text_size = int(screen_height / 1080 * 14)
+		table_padding = int(screen_height / 1080 * 40)
+		toolbar_padding = int(screen_height / 1080 * 20)
+		int_padding = int(screen_height / 1080 * 5)
+		button_font = tkFont.Font(
+			family='Helvetica', size=(int(screen_height / 1080 * 20)), weight='bold'
+			)
+
 # Make root widget
 root = tk.Tk()
 root.title("Finnish Declension Tables Tester")
